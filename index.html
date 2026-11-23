@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dual-Sim interlocks a physics simulator with a generative simulator for robotic manipulation, jointly predicting future video and proprioceptive state.">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'none'; connect-src 'none'; object-src 'none'; frame-src 'none'">
+  <title>Dual-Sim: Interlocked Physical-Generative World Simulator for Robotic Manipulation</title>
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/fig-utils.js" defer></script>
+  <script src="assets/js/pipeline-viz.js" defer></script>
+  <script src="assets/js/transport-viz.js" defer></script>
+  <script src="assets/js/comparison.js" defer></script>
+  <script src="assets/js/charts.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#overview">Skip to content</a>
+
+  <!-- Full-Viewport Cinematic Hero Demo -->
+  <header id="hero" class="hero-stage is-phase-physics" aria-label="Dual-Sim Teaser Demo">
+    <div class="hero-video-wrap">
+      <video
+        id="hero-video"
+        class="hero-video"
+        src="assets/videos/dualsim_project_demo_title.mp4"
+        autoplay
+        muted
+        playsinline
+        preload="auto"
+        aria-label="Dual-Sim teaser video transitioning from physics simulation to generative photorealistic manipulation and benchmark highlights">
+      </video>
+      <div class="hero-vignette" aria-hidden="true"></div>
+    </div>
+
+    <div class="hero-bottom-bar">
+      <a class="scroll-cue" href="#overview" aria-label="Scroll down to paper content">
+        <span class="scroll-cue-text">Scroll to explore</span>
+        <span class="scroll-cue-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20" width="18" height="18"><path d="M5 7.5L10 12.5L15 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Section 1: Paper Overview & Abstract -->
+    <section id="overview" class="section overview-section" aria-labelledby="paper-title">
+      <div class="page-width">
+        <div class="paper-title-block reveal">
+          <p class="eyebrow">Anonymous Submission &middot; Robotic World Simulator</p>
+          <h1 id="paper-title" class="paper-h1">
+            <span class="title-gradient">Dual-Sim</span>
+            <span class="title-sub">Interlocked Physical-Generative World Simulator<br class="desktop-break"> for Robotic Manipulation</span>
+          </h1>
+          <p class="paper-tagline">
+            <span class="tag-physics">Physics Simulator</span> governs the robot.
+            <span class="tag-generative">Generative Simulator</span> completes the world.
+          </p>
+        </div>
+
+        <div class="abstract-card reveal">
+          <div class="abstract-header">
+            <h2>Abstract</h2>
+          </div>
+          <div class="abstract-copy">
+            <p>Action-conditioned video world models, i.e., world simulators, predict future videos of a robot executing given actions, offering a photorealistic environment for robotic manipulation. However, three limitations remain in existing methods: (1) generated robot motion gradually drifts from the given actions over long horizons; (2) each new embodiment requires a separately fine-tuned model; and (3) the proprioceptive state needed for policy training and evaluation is missing or inaccurate. In contrast, a physics simulator explicitly computes robot kinematics and states for any specified embodiment, naturally compensating for these limitations.</p>
+            <p>To this end, we present <strong>Dual-Sim</strong>, a world simulator that interlocks a physics simulator with a generative simulator, combining the former's kinematic fidelity with the latter's visual realism. Specifically, Dual-Sim casts world prediction as a conditional transport from simulated kinematics to the target video and proprioceptive state. This transport is learned by a video-state Mixture-of-Transformers, whose video and state experts exchange features along a shared flow to predict both modalities jointly.</p>
+            <p>We further propose <strong>kinematic seeding</strong>, which replaces the Gaussian flow source with a noisy inversion of the simulated kinematics, so that the generative simulator refines the robot and completes the scene rather than imagining the future from scratch. Dual-Sim surpasses existing methods in long-horizon action following, zero-shot cross-embodiment generalization, and proprioceptive state accuracy. Closed-loop experiments further demonstrate its utility for real-world policy evaluation and training data generation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Method — Dynamic Animated Figure 2 & Figure 3 -->
+    <section id="method" class="section method-section" aria-labelledby="method-title">
+      <div class="page-width">
+        <div class="section-header reveal">
+          <h2 id="method-title">Dual-Sim Framework</h2>
+          <p class="section-lead">Dual-Sim interlocks a physics simulator with a generative simulator, casting world prediction as a conditional transport from simulated kinematics to future video and proprioceptive state via a shared Video-State Mixture-of-Transformers.</p>
+        </div>
+
+        <!-- Animated Figure 2 -->
+        <figure class="dynamic-figure reveal">
+          <div class="figure-canvas-card">
+            <canvas id="pipeline-canvas" class="pipeline-canvas" width="1200" height="610" aria-label="Overview of Dual-Sim"></canvas>
+          </div>
+          <figcaption>
+            <span class="figure-number">Figure 2. Overview of Dual-Sim.</span>
+            <strong>Left:</strong> The physics simulator executes actions to produce the sim-video, sim-state, and robot mask.
+            <strong>Right:</strong> The generative simulator transports this joint source to video and state via a shared flow conditioned on history.
+          </figcaption>
+        </figure>
+
+        <!-- Concise 3-Step Method Summary -->
+        <div class="method-steps reveal">
+          <article class="step-card">
+            <span class="step-num">01</span>
+            <h3>Physics Simulation</h3>
+            <p>Given the current state <em>q</em><sub>0</sub> and action sequence <em>A</em>, the physics simulator executes robot kinematics against an empty background to produce the multi-view sim-video <em>V&#771;</em> and exact proprioceptive sim-state <em>q&#771;</em>.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-num">02</span>
+            <h3>Kinematic Seeding</h3>
+            <p>Rather than denoising from pure Gaussian noise, kinematic seeding builds a hybrid flow source from a noisy inversion of the simulated kinematics, providing an editable prior for the robot while leaving the surrounding scene unconstrained.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-num">03</span>
+            <h3>Video-State Mixture-of-Transformers</h3>
+            <p>The video and state experts maintain separate weights and exchange features via bidirectional cross-attention along a shared conditional flow, jointly refining robot appearance, completing the scene, and adapting joint states under contact.</p>
+          </article>
+        </div>
+
+        <!-- Animated Figure 3 -->
+        <figure class="dynamic-figure dynamic-figure-transport reveal">
+          <div class="figure-canvas-card">
+            <canvas id="transport-canvas" class="transport-canvas" width="1200" height="550" aria-label="World prediction as conditional transport"></canvas>
+          </div>
+          <figcaption>
+            <span class="figure-number">Figure 3. World prediction as conditional transport.</span>
+            The hybrid source of the transport is built from the sim-video and sim-state. As <em>&tau;</em> runs from 0 to 1, the robot region transitions from the rendered robot to its photorealistic appearance, the remaining region evolves from pure noise to the surrounding scene, and the state transports from the sim-state (dashed Sim) to the edited output.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Section 3: Visual Gallery — Single-Row Continuous Carousel with Center-Focus Expansion -->
+    <section id="visual-results" class="section visual-section" aria-labelledby="visual-title">
+      <div class="page-width">
+        <div class="gallery-topbar reveal">
+          <div class="gallery-topbar-left">
+            <h2 id="visual-title">Visual Gallery</h2>
+            <div class="gallery-pair-key" aria-hidden="true">
+              <span class="pair-key-item"><i class="pair-dot pair-dot-sim"></i>Sim</span>
+              <span class="pair-key-sep">/</span>
+              <span class="pair-key-item"><i class="pair-dot pair-dot-ours"></i>Dual-Sim</span>
+            </div>
+          </div>
+
+          <div class="gallery-emb-pills" id="gallery-emb-pills" role="group" aria-label="Jump to embodiment">
+            <button type="button" class="emb-jump-pill" data-emb="AgiBot G2">AgiBot G2</button>
+            <button type="button" class="emb-jump-pill" data-emb="ARX-X5">ARX-X5</button>
+            <button type="button" class="emb-jump-pill" data-emb="Aloha-AgileX">Aloha-AgileX</button>
+            <button type="button" class="emb-jump-pill" data-emb="UR5-WSG">UR5-WSG</button>
+            <button type="button" class="emb-jump-pill is-unseen-pill" data-emb="Franka-Panda">
+              <span>Franka-Panda</span>
+              <span class="emb-pill-unseen-tag">Unseen</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full-Bleed Single-Row Infinite Carousel with Center-Focus Expansion -->
+      <div class="gallery-carousel-band reveal" id="gallery-carousel" aria-label="Interactive rollout gallery across five embodiments">
+        <div class="gallery-carousel-viewport" id="gallery-carousel-viewport">
+          <div class="gallery-carousel-track" id="gallery-carousel-track"></div>
+        </div>
+
+        <button type="button" class="carousel-arrow carousel-arrow-prev" id="carousel-prev" aria-label="Previous rollout">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="carousel-arrow carousel-arrow-next" id="carousel-next" aria-label="Next rollout">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <!-- Single shared live Sim | Dual-Sim player mounted into the centered focused card -->
+        <div class="gallery-player-dock" id="gallery-player-dock" hidden>
+          <div class="comparison gallery-live-player" id="gallery-live-player" role="group" aria-label="Sim vs Dual-Sim interactive split comparison">
+            <div class="comparison-stage gallery-live-stage" id="gallery-live-stage">
+              <div class="comparison-layer comparison-after">
+                <video class="comparison-video" id="gallery-video-after" muted playsinline preload="auto" aria-label="Dual-Sim generated rollout"></video>
+              </div>
+              <div class="comparison-layer comparison-before">
+                <video class="comparison-video" id="gallery-video-before" muted playsinline preload="auto" aria-label="Physics simulator rollout"></video>
+              </div>
+              <span class="video-label label-before">Sim</span>
+              <span class="video-label label-after">Dual-Sim</span>
+              <span class="comparison-divider" aria-hidden="true">
+                <span class="comparison-handle">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M5.4 4.2L2.2 8l3.2 3.8" stroke="#2e6f95" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="8" y1="3.6" x2="8" y2="12.4" stroke="#9aaab6" stroke-width="1.15" stroke-linecap="round"/>
+                    <path d="M10.6 4.2L13.8 8l-3.2 3.8" stroke="#e26a38" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </span>
+              <input class="comparison-slider" id="gallery-slider" type="range" min="0" max="100" value="50" aria-label="Sim vs Dual-Sim divider" aria-valuetext="50% Sim, 50% Dual-Sim">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-width">
+        <div class="gallery-dots" id="gallery-dots" role="tablist" aria-label="Select rollout"></div>
+        <p id="gallery-status" class="visually-hidden" role="status"></p>
+      </div>
+    </section>
+
+    <!-- Section 4: Scroll-Triggered Dynamic Quantitative Results (Sections 4.1 & 4.2) -->
+    <section id="main-results" class="section results-section" aria-labelledby="results-title">
+      <div class="page-width">
+        <div class="section-header reveal">
+          <h2 id="results-title">Quantitative Results</h2>
+        </div>
+
+        <!-- 3-Pillar Quantitative Highlights -->
+        <div class="results-highlights reveal">
+          <article class="result-pill-card result-pill-visual">
+            <h3>Visual Quality</h3>
+            <p>Achieves <strong>21.56 dB</strong> PSNR and <strong>74.90</strong> SSIM on 300-frame RichInteraction rollouts, preserving sharp scene appearance and embodiment fidelity.</p>
+          </article>
+          <article class="result-pill-card result-pill-action">
+            <h3>Action Consistency</h3>
+            <p>Leads across Trajectory nDTW (<strong>44.99</strong>), HSD (<strong>33.65</strong>), and Dynamics (<strong>16.84</strong>), mitigating long-horizon motion drift and deformation.</p>
+          </article>
+          <article class="result-pill-card result-pill-cross">
+            <h3>Cross-Embodiment</h3>
+            <p>A single model generalizes zero-shot to the unseen <strong>Franka-Panda</strong> robot, reaching <strong>60.23</strong> Emb. SSIM and <strong>2.2&times;</strong> Trajectory Accuracy.</p>
+          </article>
+        </div>
+
+        <!-- Section 4.1: Action-Conditioned Video Generation (EWMScore + Teaser-Style Split Radar) -->
+        <div class="chart-card reveal" data-chart-block="richinteraction">
+          <div class="chart-card-head">
+            <div>
+              <h3>Action-Conditioned Video Generation</h3>
+              <p class="chart-desc">Evaluated on 100 episodes from AGIBOT WORLD 2026 RichInteraction (300-frame rollouts). Dual-Sim leads in overall EWMScore, Action Consistency, and Visual Quality.</p>
+            </div>
+            <div class="chart-legend-inline">
+              <span class="legend-item"><i class="swatch swatch-baseline"></i><em>GE-Sim 2.0<sup>*</sup></em></span>
+              <span class="legend-item"><i class="swatch swatch-ours-bar"></i><em>Dual-Sim</em></span>
+            </div>
+          </div>
+
+          <div class="rich-layout">
+            <div class="rich-bars-panel">
+              <div class="subpanel-head">
+                <span class="subpanel-title">Overall EWMScore &uarr;</span>
+              </div>
+              <div class="animated-bars" id="rich-bars-container"></div>
+            </div>
+
+            <div class="rich-radar-panel">
+              <svg id="rich-radar-svg" class="radar-svg" viewBox="0 0 420 356" role="img" aria-label="Animated 6-axis radar chart comparing Dual-Sim against GE-Sim 2.0* across Action Consistency (Trajectory nDTW, Trajectory Dynamics, Trajectory HSD) on the left and Visual Quality (Scene Consistency, PSNR, SSIM) on the right"></svg>
+            </div>
+          </div>
+
+          <p class="chart-note-bottom"><sup>*</sup> GE-Sim 2.0 fine-tuned on the same RichInteraction training split as Dual-Sim.</p>
+        </div>
+
+        <!-- Section 4.1 Ablation: Kinematic Seeding -->
+        <div class="chart-card reveal" data-chart-block="ablation">
+          <div class="chart-card-head">
+            <div>
+              <h3>Ablation on Kinematic Seeding</h3>
+              <p class="chart-desc">Anchoring the transport source via kinematic seeding outperforms input and feature conditioning across all metrics.</p>
+            </div>
+          </div>
+          <div id="ablation-chart-container" class="ablation-chart ablation-grid-3"></div>
+        </div>
+
+        <!-- Section 4.2: Cross-Embodiment Evaluation on RoboTwin -->
+        <div class="chart-card reveal" data-chart-block="cross-embodiment">
+          <div class="chart-card-head">
+            <div>
+              <h3>Cross-Embodiment Evaluation</h3>
+              <p class="chart-desc">Jointly trained on ARX-X5, Aloha-AgileX, and UR5-WSG across 13 RoboTwin tasks, and evaluated zero-shot on the unseen Franka-Panda embodiment.</p>
+            </div>
+            <div class="chart-legend-inline">
+              <span class="legend-item"><i class="swatch swatch-baseline"></i><em>GE-Sim 2.0<sup>*</sup></em></span>
+              <span class="legend-item"><i class="swatch swatch-ours-bar"></i><em>Dual-Sim</em></span>
+            </div>
+          </div>
+
+          <div class="emb-chart-wrap" id="emb-chart-container"></div>
+
+          <p class="chart-note-bottom"><sup>*</sup> GE-Sim 2.0 trained on the same three RoboTwin embodiments; Franka-Panda is held out entirely from training.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="page-width footer-inner">
+      <div class="footer-brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span><strong>Dual-Sim</strong> &middot; Interlocked Physical-Generative World Simulator for Robotic Manipulation</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-note">Anonymous Submission</span>
+        <a class="back-to-top" href="#hero">Back to Top &uarr;</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
