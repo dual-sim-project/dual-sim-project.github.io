@@ -752,7 +752,7 @@ input:focus-visible,
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 40px 44px;
+  padding: 40px 52px;
   box-shadow: var(--shadow-md);
 }
 
@@ -769,10 +769,12 @@ input:focus-visible,
 
 .abstract-copy {
   columns: 1;
-  max-width: 960px;
   font-size: 16px;
   line-height: 1.82;
   color: var(--ink-soft);
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
 }
 
 /* ============================================================
