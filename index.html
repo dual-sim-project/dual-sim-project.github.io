@@ -53,11 +53,14 @@
           <p class="eyebrow">Anonymous Submission &middot; Robotic World Simulator</p>
           <h1 id="paper-title" class="paper-h1">
             <span class="title-gradient">Dual-Sim</span>
-            <span class="title-sub">Interlocked Physical-Generative World Simulator<br class="desktop-break"> for Robotic Manipulation</span>
+            <span class="title-sub">Interlocked Physical-Generative World Simulator for Robotic Manipulation</span>
           </h1>
           <p class="paper-tagline">
-            <span class="tag-physics">Physics Simulator</span> governs the robot.
-            <span class="tag-generative">Generative Simulator</span> completes the world.
+            <span class="tag-physics">Physics Simulator</span>
+            <span class="tag-verb">governs the robot.</span>
+            <span class="tag-gap" aria-hidden="true"></span>
+            <span class="tag-generative">Generative Simulator</span>
+            <span class="tag-verb">completes the world.</span>
           </p>
         </div>
 
@@ -66,9 +69,8 @@
             <h2>Abstract</h2>
           </div>
           <div class="abstract-copy">
-            <p>Action-conditioned video world models, i.e., world simulators, predict future videos of a robot executing given actions, offering a photorealistic environment for robotic manipulation. However, three limitations remain in existing methods: (1) generated robot motion gradually drifts from the given actions over long horizons; (2) each new embodiment requires a separately fine-tuned model; and (3) the proprioceptive state needed for policy training and evaluation is missing or inaccurate. In contrast, a physics simulator explicitly computes robot kinematics and states for any specified embodiment, naturally compensating for these limitations.</p>
-            <p>To this end, we present <strong>Dual-Sim</strong>, a world simulator that interlocks a physics simulator with a generative simulator, combining the former's kinematic fidelity with the latter's visual realism. Specifically, Dual-Sim casts world prediction as a conditional transport from simulated kinematics to the target video and proprioceptive state. This transport is learned by a video-state Mixture-of-Transformers, whose video and state experts exchange features along a shared flow to predict both modalities jointly.</p>
-            <p>We further propose <strong>kinematic seeding</strong>, which replaces the Gaussian flow source with a noisy inversion of the simulated kinematics, so that the generative simulator refines the robot and completes the scene rather than imagining the future from scratch. Dual-Sim surpasses existing methods in long-horizon action following, zero-shot cross-embodiment generalization, and proprioceptive state accuracy. Closed-loop experiments further demonstrate its utility for real-world policy evaluation and training data generation.</p>
+            <p>Action-conditioned world simulators predict future robot videos from actions, yet existing models suffer from long-horizon motion drift, per-embodiment fine-tuning, and inaccurate states. We present <strong>Dual-Sim</strong>, interlocking a physics simulator with a generative simulator to unite kinematic fidelity with visual realism.</p>
+            <p>Dual-Sim casts world prediction as a conditional transport via a video-state Mixture-of-Transformers, jointly predicting future video and proprioceptive state along a shared flow. With <strong>kinematic seeding</strong>, it refines simulated kinematics and completes the scene&mdash;leading in action fidelity, cross-embodiment transfer, and policy utility.</p>
           </div>
         </div>
       </div>
@@ -77,9 +79,8 @@
     <!-- Section 2: Method — Dynamic Animated Figure 2 & Figure 3 -->
     <section id="method" class="section method-section" aria-labelledby="method-title">
       <div class="page-width">
-        <div class="section-header reveal">
+        <div class="section-header section-header-compact reveal">
           <h2 id="method-title">Dual-Sim Framework</h2>
-          <p class="section-lead">Dual-Sim interlocks a physics simulator with a generative simulator, casting world prediction as a conditional transport from simulated kinematics to future video and proprioceptive state via a shared Video-State Mixture-of-Transformers.</p>
         </div>
 
         <!-- Animated Figure 2 -->
@@ -97,19 +98,16 @@
         <!-- Concise 3-Step Method Summary -->
         <div class="method-steps reveal">
           <article class="step-card">
-            <span class="step-num">01</span>
             <h3>Physics Simulation</h3>
-            <p>Given the current state <em>q</em><sub>0</sub> and action sequence <em>A</em>, the physics simulator executes robot kinematics against an empty background to produce the multi-view sim-video <em>V&#771;</em> and exact proprioceptive sim-state <em>q&#771;</em>.</p>
+            <p>Executes actions <span class="math">A</span> from state <span class="math">q<sub>0</sub></span> in an empty scene, rendering multi-view sim-video <span class="math"><span class="math-tilde">V</span></span> and exact proprioceptive sim-state <span class="math"><span class="math-tilde math-tilde-low">q</span></span> per step.</p>
           </article>
           <article class="step-card">
-            <span class="step-num">02</span>
             <h3>Kinematic Seeding</h3>
-            <p>Rather than denoising from pure Gaussian noise, kinematic seeding builds a hybrid flow source from a noisy inversion of the simulated kinematics, providing an editable prior for the robot while leaving the surrounding scene unconstrained.</p>
+            <p>Builds a hybrid flow source from noisy simulated kinematics, anchoring robot motion while leaving the surrounding scene fully unconstrained.</p>
           </article>
           <article class="step-card">
-            <span class="step-num">03</span>
-            <h3>Video-State Mixture-of-Transformers</h3>
-            <p>The video and state experts maintain separate weights and exchange features via bidirectional cross-attention along a shared conditional flow, jointly refining robot appearance, completing the scene, and adapting joint states under contact.</p>
+            <h3>Video-State MoT</h3>
+            <p>Video and state experts exchange features along a shared flow, refining robot appearance, visual scene details, and joint contact states.</p>
           </article>
         </div>
 
@@ -120,7 +118,7 @@
           </div>
           <figcaption>
             <span class="figure-number">Figure 3. World prediction as conditional transport.</span>
-            The hybrid source of the transport is built from the sim-video and sim-state. As <em>&tau;</em> runs from 0 to 1, the robot region transitions from the rendered robot to its photorealistic appearance, the remaining region evolves from pure noise to the surrounding scene, and the state transports from the sim-state (dashed Sim) to the edited output.
+            The hybrid source of the transport is built from the sim-video and sim-state. As <span class="math">&tau;</span> runs from 0 to 1, the robot region transitions from the rendered robot to its photorealistic appearance, the remaining region evolves from pure noise to the surrounding scene, and the state transports from the sim-state (dashed Sim) to the edited output.
           </figcaption>
         </figure>
       </div>
@@ -192,10 +190,7 @@
         </div>
       </div>
 
-      <div class="page-width">
-        <div class="gallery-dots" id="gallery-dots" role="tablist" aria-label="Select rollout"></div>
-        <p id="gallery-status" class="visually-hidden" role="status"></p>
-      </div>
+      <p id="gallery-status" class="visually-hidden" role="status"></p>
     </section>
 
     <!-- Section 4: Scroll-Triggered Dynamic Quantitative Results (Sections 4.1 & 4.2) -->
@@ -209,15 +204,15 @@
         <div class="results-highlights reveal">
           <article class="result-pill-card result-pill-visual">
             <h3>Visual Quality</h3>
-            <p>Achieves <strong>21.56 dB</strong> PSNR and <strong>74.90</strong> SSIM on 300-frame RichInteraction rollouts, preserving sharp scene appearance and embodiment fidelity.</p>
+            <p>Achieves <strong>21.56 dB</strong> PSNR and <strong>74.90</strong> SSIM on 300-frame rollouts, preserving crisp scene fidelity.</p>
           </article>
           <article class="result-pill-card result-pill-action">
             <h3>Action Consistency</h3>
-            <p>Leads across Trajectory nDTW (<strong>44.99</strong>), HSD (<strong>33.65</strong>), and Dynamics (<strong>16.84</strong>), mitigating long-horizon motion drift and deformation.</p>
+            <p>Leads in Trajectory nDTW (<strong>44.99</strong>), HSD (<strong>33.65</strong>), and Dynamics (<strong>16.84</strong>) with minimal motion drift.</p>
           </article>
           <article class="result-pill-card result-pill-cross">
             <h3>Cross-Embodiment</h3>
-            <p>A single model generalizes zero-shot to the unseen <strong>Franka-Panda</strong> robot, reaching <strong>60.23</strong> Emb. SSIM and <strong>2.2&times;</strong> Trajectory Accuracy.</p>
+            <p>Generalizes zero-shot to unseen <strong>Franka-Panda</strong>, reaching <strong>60.23</strong> Emb. SSIM and <strong>2.2&times;</strong> accuracy.</p>
           </article>
         </div>
 
@@ -226,7 +221,7 @@
           <div class="chart-card-head">
             <div>
               <h3>Action-Conditioned Video Generation</h3>
-              <p class="chart-desc">Evaluated on 100 episodes from AGIBOT WORLD 2026 RichInteraction (300-frame rollouts). Dual-Sim leads in overall EWMScore, Action Consistency, and Visual Quality.</p>
+              <p class="chart-desc">AGIBOT WORLD 2026 RichInteraction (100 episodes, 300-frame rollouts).</p>
             </div>
             <div class="chart-legend-inline">
               <span class="legend-item"><i class="swatch swatch-baseline"></i><em>GE-Sim 2.0<sup>*</sup></em></span>
@@ -255,7 +250,7 @@
           <div class="chart-card-head">
             <div>
               <h3>Ablation on Kinematic Seeding</h3>
-              <p class="chart-desc">Anchoring the transport source via kinematic seeding outperforms input and feature conditioning across all metrics.</p>
+              <p class="chart-desc">Kinematic seeding outperforms input and feature conditioning across all metrics.</p>
             </div>
           </div>
           <div id="ablation-chart-container" class="ablation-chart ablation-grid-3"></div>
@@ -266,7 +261,7 @@
           <div class="chart-card-head">
             <div>
               <h3>Cross-Embodiment Evaluation</h3>
-              <p class="chart-desc">Jointly trained on ARX-X5, Aloha-AgileX, and UR5-WSG across 13 RoboTwin tasks, and evaluated zero-shot on the unseen Franka-Panda embodiment.</p>
+              <p class="chart-desc">Jointly trained on 3 RoboTwin embodiments and evaluated zero-shot on unseen Franka-Panda.</p>
             </div>
             <div class="chart-legend-inline">
               <span class="legend-item"><i class="swatch swatch-baseline"></i><em>GE-Sim 2.0<sup>*</sup></em></span>

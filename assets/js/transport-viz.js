@@ -209,12 +209,28 @@
       ctx.stroke();
       ctx.restore();
     }
-    ctx.fillStyle = colIdx === 5 ? "#b9481a" : "#1c2d3a";
-    ctx.font = (colIdx === 0 || colIdx === 1 || colIdx === 5)
-      ? "700 13.5px Inter, system-ui, sans-serif"
-      : "600 13.5px Inter, system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(label, cx, LABEL_Y);
+    const colLabelColor = colIdx === 5 ? "#b9481a" : "#1c2d3a";
+    const colWeight = (colIdx === 0 || colIdx === 1 || colIdx === 5) ? 650 : 550;
+    if (label.indexOf("\u03c4") !== -1) {
+      const idxTau = label.indexOf("\u03c4");
+      const prefix = label.slice(0, idxTau);
+      const suffix = label.slice(idxTau + 1);
+      const parts = [];
+      if (prefix) parts.push({ text: prefix, weight: colWeight });
+      parts.push({ text: "\u03c4", italic: true, weight: 600, sizeDelta: 1 });
+      parts.push({ text: suffix, math: true, weight: 550, sizeDelta: 0.4 });
+      F.drawMathText(ctx, parts, cx, LABEL_Y, {
+        align: "center",
+        baseSize: 13.5,
+        baseWeight: colWeight,
+        baseColor: colLabelColor
+      });
+    } else {
+      ctx.fillStyle = colLabelColor;
+      ctx.font = colWeight + ' 13.5px "Segoe UI Variable Text", "SF Pro Text", system-ui, sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText(label, cx, LABEL_Y);
+    }
 
     ctx.restore();
   }
@@ -281,9 +297,9 @@
       ctx.roundRect(cx - pw * 0.5, FRAME_Y + liftY - 22, pw, ph, 10.5);
       ctx.fill();
       ctx.fillStyle = "#ffffff";
-      ctx.font = "700 11px ui-monospace, Consolas, monospace";
+      ctx.font = '650 11.5px "Segoe UI Variable Text", "SF Pro Text", system-ui, sans-serif';
       ctx.textAlign = "center";
-      ctx.fillText(badgeText, cx, FRAME_Y + liftY - 7.8);
+      ctx.fillText(badgeText, cx, FRAME_Y + liftY - 7.5);
     }
 
     ctx.restore();
@@ -322,9 +338,9 @@
       ctx.save();
       ctx.globalAlpha *= F.easeOutCubic(F.phase(t, 1.25, 1.65));
       ctx.fillStyle = "#225c82";
-      ctx.font = 'italic 700 15.5px Georgia, "Times New Roman", serif';
+      ctx.font = 'italic 600 16px "Palatino Linotype", "Book Antiqua", Georgia, serif';
       ctx.textAlign = "center";
-      ctx.fillText("Perturb", (colCx(0) + colCx(1)) * 0.5, 54);
+      ctx.fillText("Perturb", (colCx(0) + colCx(1)) * 0.5, 52);
       ctx.restore();
 
       drawPartialQuad(
@@ -354,18 +370,20 @@
       const titleOp = F.easeOutCubic(F.phase(t, TRANS_START - 0.15, TRANS_START + 0.35));
       ctx.save();
       ctx.globalAlpha *= titleOp;
+      const serifTitleFam = '"Palatino Linotype", "Book Antiqua", "Iowan Old Style", Georgia, serif';
       F.drawMathText(ctx, [
-        { text: "Conditional Transport   " },
-        { text: "x", italic: true, weight: 700 },
-        { text: "\u03c4", italic: true, sub: true },
-        { text: " = (" },
-        { text: "z", italic: true, weight: 700 },
-        { text: "\u03c4", italic: true, sub: true },
-        { text: ", " },
-        { text: "q", italic: true, weight: 700 },
-        { text: "\u03c4", italic: true, sub: true },
-        { text: ")" }
-      ], (colCx(1) + colCx(5)) * 0.5, 34, { align: "center", baseSize: 17.5, baseWeight: 750 });
+        { text: "Conditional Transport", italic: true, weight: 700, family: serifTitleFam, color: "#1c2d3a" },
+        { text: "   ", math: true, weight: 500 },
+        { text: "x", italic: true, weight: 600, color: "#1f4d6b" },
+        { text: "\u03c4", italic: true, sub: true, weight: 500, color: "#1f4d6b" },
+        { text: " = (", math: true, weight: 500, color: "#3b5060" },
+        { text: "z", italic: true, weight: 600, color: "#1f4d6b" },
+        { text: "\u03c4", italic: true, sub: true, weight: 500, color: "#1f4d6b" },
+        { text: ", ", math: true, weight: 500, color: "#3b5060" },
+        { text: "q", italic: true, weight: 600, color: "#1f4d6b" },
+        { text: "\u03c4", italic: true, sub: true, weight: 500, color: "#1f4d6b" },
+        { text: ")", math: true, weight: 500, color: "#3b5060" }
+      ], (colCx(1) + colCx(5)) * 0.5, 32, { align: "center", baseSize: 17.5, baseWeight: 600 });
       ctx.restore();
 
       const archG = ctx.createLinearGradient(colCx(1), 0, colCx(5), 0);

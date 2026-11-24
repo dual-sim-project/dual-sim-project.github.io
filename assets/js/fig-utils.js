@@ -308,20 +308,33 @@ window.DualSimFig = (function () {
       baseSize = 13.5,
       baseWeight = 700,
       baseColor = "#142029",
-      fontFamily = "Inter, system-ui, sans-serif",
-      mathFamily = "Georgia, 'Times New Roman', serif"
+      fontFamily = '"Segoe UI Variable Text", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      mathFamily = '"Cambria Math", "STIX Two Math", "Times New Roman", "Palatino Linotype", Georgia, serif'
     } = opts || {};
 
     ctx.save();
     const measured = parts.map((p) => {
-      const sz = p.sub ? baseSize * 0.74 : baseSize + (p.sizeDelta || 0);
+      const sz = p.sub ? baseSize * 0.72 : baseSize + (p.sizeDelta || 0);
       const wt = p.weight || (p.sub ? 600 : baseWeight);
-      const fam = p.italic ? mathFamily : fontFamily;
+      const isMath = Boolean(p.italic || p.math || p.sub);
+      const fam = p.family || (isMath ? mathFamily : fontFamily);
       const style = p.italic ? "italic " : "";
       const font = `${style}${wt} ${sz}px ${fam}`;
+
+      // Separate combining tilde (\u0303) or circumflex (\u0302) for crisp vector accent rendering
+      let accent = p.accent || "";
+      let cleanText = p.text;
+      if (!accent && cleanText.indexOf("\u0303") !== -1) {
+        accent = "tilde";
+        cleanText = cleanText.replace(/\u0303/g, "");
+      } else if (!accent && cleanText.indexOf("\u0302") !== -1) {
+        accent = "hat";
+        cleanText = cleanText.replace(/\u0302/g, "");
+      }
+
       ctx.font = font;
-      const w = ctx.measureText(p.text).width;
-      return { p, font, w, dy: p.sub ? baseSize * 0.24 : 0 };
+      const w = ctx.measureText(cleanText).width + (p.italic ? sz * 0.06 : 0);
+      return { p, cleanText, accent, font, sz, w, dy: p.sub ? baseSize * 0.25 : 0 };
     });
 
     const totalW = measured.reduce((acc, m) => acc + m.w, 0);
@@ -330,8 +343,34 @@ window.DualSimFig = (function () {
     ctx.textAlign = "left";
     measured.forEach((m) => {
       ctx.font = m.font;
-      ctx.fillStyle = m.p.color || baseColor;
-      ctx.fillText(m.p.text, curX, y + m.dy);
+      const col = m.p.color || baseColor;
+      ctx.fillStyle = col;
+      ctx.fillText(m.cleanText, curX, y + m.dy);
+
+      if (m.accent) {
+        const isLower = m.cleanText === m.cleanText.toLowerCase();
+        const ax = curX + m.w * (m.p.italic ? 0.56 : 0.48);
+        const ay = y + m.dy - (isLower ? m.sz * 0.64 : m.sz * 0.84);
+        ctx.save();
+        ctx.strokeStyle = col;
+        ctx.lineWidth = Math.max(1.15, m.sz * 0.085);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        if (m.accent === "tilde") {
+          const hw = m.sz * 0.27;
+          ctx.moveTo(ax - hw, ay + 1.0);
+          ctx.bezierCurveTo(ax - hw * 0.45, ay - 2.2, ax + hw * 0.15, ay + 2.2, ax + hw, ay - 1.0);
+        } else if (m.accent === "hat") {
+          const hw = m.sz * 0.25;
+          ctx.moveTo(ax - hw, ay + 1.6);
+          ctx.lineTo(ax, ay - 2.0);
+          ctx.lineTo(ax + hw, ay + 1.6);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
       curX += m.w;
     });
     ctx.restore();
